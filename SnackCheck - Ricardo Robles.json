@@ -1,0 +1,1124 @@
+{
+  "name": "SnackCheck - Ricardo Robles",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "=/nutrition-check",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2ebc9306-dca8-450e-a030-796894489ca8",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "6584a296-cdd3-47fd-b2d7-66e3db3445b8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "de2c21f3-c11b-4c24-aa11-d257ab5c3d8a",
+              "leftValue": "={{ $json.body.barcode }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6741f83c-1fa2-4d73-910c-42583c866e4a",
+      "name": "Verificar que el campo barcode exista",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2df54ef8-e2ea-45ec-90b7-c2d921ea95e9",
+              "leftValue": "={{ $json.body.barcode }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7283e6d0-8a5b-4ede-828a-e9052fce1daa",
+              "leftValue": "={{ $json.body.barcode }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        0
+      ],
+      "id": "63966a15-b6ec-41d6-b82b-cb252c6ed425",
+      "name": "Verificar que el campo barcode sea numérico",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://world.openfoodfacts.org/api/v2/product/{{ $json.body.barcode }}.json?fields=product_name,brands,nutriscore_grade,nutriments",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "927f66e6-f166-45e6-a231-56a64c1a0a08",
+      "name": "llamada HTTP a Open Food Facts",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4e2c41b8-de8b-4ec7-a98e-e8c5503a1f1d",
+              "name": "error_message",
+              "value": "La búsqueda no arrojó resultados, es posible que el producto no se encuentre o no exista, por favor verifique que el código es correcto e inténtelo nuevamente.",
+              "type": "string"
+            },
+            {
+              "id": "595a7c2e-635d-44e0-8813-d7cd75a8574a",
+              "name": "suggestion",
+              "value": "{\"barcode\": \"3017620422003\"} ",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1216,
+        144
+      ],
+      "id": "4079923e-e790-46a6-a8a4-40bda69dfe3d",
+      "name": "Mensaje de error 3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8551eed0-2943-4b41-b261-dd4ed7ebb831",
+              "name": "error_message",
+              "value": "El campo barcode sólo procesa valores numéricos, por favor verifique e intente de nuevo.",
+              "type": "string"
+            },
+            {
+              "id": "c0cbdf7d-8126-4ca1-8dd3-5eea3f565343",
+              "name": "suggestion",
+              "value": "\"barcode\": \"4877465655877\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        768,
+        144
+      ],
+      "id": "a4830d08-ba4a-4a81-83ac-9e78027c75c8",
+      "name": "Mensaje de error 2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "016a3859-d791-4e62-80fa-eee943337050",
+              "name": "error_message",
+              "value": "Bienvenido a SnackCheck, en esta app te ayudaremos a saber si el snack que seleccionaste es saludable. por favor ingresa el código de barra del producto en el campo 'barcode', ingresa sólo valores numéricos.",
+              "type": "string"
+            },
+            {
+              "id": "45c7a5ef-c64a-4c1d-bccf-d29b8424b804",
+              "name": "suggestion",
+              "value": "={\"barcode\": \"3017620422003\"}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f3c6c325-fc69-4251-8298-1e8bc6e66802",
+      "name": "Mensaje de error 1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        352,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14449e4f-6c4b-4806-9e14-da3776bd5c3f",
+              "name": "error_message",
+              "value": "Los datos nutricionales obtenidos son insuficientes para ofrecerte el veredicto confiable que esperas, lo sentimos mucho. Prueba ingresando un nuevo código",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1648,
+        144
+      ],
+      "id": "9c1399ae-a235-4a0b-bf63-1196ec28b611",
+      "name": "Mensaje de error 4"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        928,
+        144
+      ],
+      "id": "b226aa4c-f25e-4e17-85e3-4b5ac79220ad",
+      "name": "Respuesta 2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "eb542b8c-fb06-4d34-b525-091e6f6ec561",
+      "name": "Respuesta 1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        512,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1376,
+        144
+      ],
+      "id": "b52eb402-01c2-4d1a-9821-aa6d17d11f58",
+      "name": "Respuesta 3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dec13a35-cb5d-4c1f-bdc3-b7378637026c",
+              "leftValue": "={{ $json.product.nutriments }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1520,
+        0
+      ],
+      "id": "57e284d2-2790-4630-b889-4514f758e639",
+      "name": "Verificar si faltan datos de nutrientes"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1808,
+        144
+      ],
+      "id": "b1b0722d-a8fb-4301-8f11-da3fe9a7daf3",
+      "name": "Respuesta 4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d0f062d-682f-4a80-8d4f-4061208a5994",
+              "name": "azúcar_100g",
+              "value": "={{ $json.product.nutriments.sugars_100g }}",
+              "type": "number"
+            },
+            {
+              "id": "f73afe6d-1678-4b5f-9113-4f19294b507c",
+              "name": "sal_100g",
+              "value": "={{ $json.product.nutriments.salt_100g }}",
+              "type": "string"
+            },
+            {
+              "id": "2fa32a48-6fb6-466c-98e9-498e5cd3dd27",
+              "name": "grasa_100g",
+              "value": "={{ $json.product.nutriments.fat_100g }}",
+              "type": "string"
+            },
+            {
+              "id": "46a2e54c-dfdb-4a81-8d85-ec03418f9115",
+              "name": "nutriscore",
+              "value": "={{ $json.product.nutriscore_grade }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2000,
+        0
+      ],
+      "id": "890fb4e3-8a4e-4a0d-8dc3-bf3fda81b6e5",
+      "name": "Extraer datos para la clasificación"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a2e20ae9-ba7b-4b9e-bba7-f454eb5deed5",
+              "leftValue": "={{ $json[\"azúcar_100g\"] }}",
+              "rightValue": 22.5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2224,
+        0
+      ],
+      "id": "e18c549d-fe69-4ff5-be1d-8778ff564976",
+      "name": "Azúcar es mayor a 22.5",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8af2eef8-5759-456a-bca1-1fed807fda1c",
+              "leftValue": "={{ $('Extraer datos para la clasificación').item.json['azúcar_100g'] }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "0dc6cd17-a45e-4094-a1d4-3e3a48d83f37",
+              "leftValue": "={{ $('Extraer datos para la clasificación').item.json['azúcar_100g'] }}",
+              "rightValue": 22.5,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2384,
+        176
+      ],
+      "id": "f92679ca-6dca-4c2c-814d-eaaf043622fb",
+      "name": "Azúcar entre 5 y 22.5",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "41f0561e-7e4d-46d7-bac6-1d127efe5039",
+              "leftValue": "={{ $('Extraer datos para la clasificación').item.json.sal_100g }}",
+              "rightValue": 1.5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "f61293c3-ac02-472f-9f37-4484d7b1470e",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2832,
+        0
+      ],
+      "id": "ce3cf8b5-300a-46df-be60-518eb8edcce3",
+      "name": "Sal es mayor a 1.5",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4ffc3e3b-3250-4936-ae73-8ba293d3224d",
+              "name": "Grasa",
+              "value": "bajo",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3792,
+        144
+      ],
+      "id": "87502707-91cf-4c7e-9062-b3dbe7b9af65",
+      "name": "Clasificación Grasa: Bajo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c268e587-bddf-499f-b208-961dc50ca61f",
+              "name": "Azúcar",
+              "value": "medio",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2576,
+        160
+      ],
+      "id": "dbb7936d-133c-435b-ac72-bd6dc12eba1a",
+      "name": "Clasificación Azúcar: Medio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aa550b15-4c18-4dc9-bb88-7ee0a4c344a8",
+              "name": "Azúcar",
+              "value": "alto",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2576,
+        0
+      ],
+      "id": "c1217cc0-1997-4c78-a32d-d97d9641ad14",
+      "name": "Clasificación Azúcar: Alto"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba24be2d-5714-4f8b-b022-be27a5048ec0",
+              "name": "Azúcar",
+              "value": "bajo",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2576,
+        320
+      ],
+      "id": "130ab15a-4604-41ac-8147-8c85c26e57de",
+      "name": "Clasificación Azucar: Bajo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c75a5974-1fe1-4997-9f52-adf2bc9aab7d",
+              "name": "Sal",
+              "value": "alto",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3184,
+        0
+      ],
+      "id": "26493ff4-ac2b-4172-b340-21492dfb3393",
+      "name": "Clasificación Sal: Alto"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "549c2896-3d61-4558-9de7-88b251dbf394",
+              "name": "Sal",
+              "value": "bajo",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3184,
+        144
+      ],
+      "id": "faa90489-bda7-4d9c-9a4c-bdb9ce158116",
+      "name": "Clasificación Sal: Bajo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de7c44f4-aedd-463d-9eab-1659a0c32ed2",
+              "name": "Grasa",
+              "value": "alto",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3792,
+        0
+      ],
+      "id": "08e383d0-ffea-4745-8e43-3f144e0403ac",
+      "name": "Clasificación Grasa: Alto"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fe1c44a5-86a7-45bd-91d1-42d076fd9444",
+              "leftValue": "={{ $('Extraer datos para la clasificación').item.json.grasa_100g }}",
+              "rightValue": 17.5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3440,
+        0
+      ],
+      "id": "11aceee0-dff7-45fb-a7b5-b3dfc2d28fcd",
+      "name": "Grasa es mayor a 17.5",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4d460139-c453-4b08-b8b0-46ab4e1c5788",
+              "name": "Azúcar",
+              "value": "={{ $('Sal es mayor a 1.5').item.json[\"Azúcar\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "c2788b26-4b36-43b2-8e50-adb6ed992054",
+              "name": "Sal",
+              "value": "={{ $('Grasa es mayor a 17.5').item.json.Sal }}",
+              "type": "string"
+            },
+            {
+              "id": "7b98be8e-d4bb-4740-88df-a5a9bedd572a",
+              "name": "Grasa",
+              "value": "={{ $json.Grasa }}",
+              "type": "string"
+            },
+            {
+              "id": "a1224a67-71e4-4266-b832-1da16f9d2b56",
+              "name": "Nutriscore",
+              "value": "={{ $('Extraer datos para la clasificación').item.json.nutriscore }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        4064,
+        0
+      ],
+      "id": "993555bf-f8a1-4328-92af-032064eceee8",
+      "name": "Combinar resultados de las clasificación",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        4528,
+        192
+      ],
+      "id": "09ebf5e1-d5c1-4fb8-a0ef-24b4f96fb4ad",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "1D5vvFXYrzwELkPc",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        4848,
+        0
+      ],
+      "id": "b2d84062-c2b4-469a-9496-b5de3f89be63",
+      "name": "Respuesta Final"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generarás una respuesta de una consulta de producto para saber si es \"Saludable\", \"Moderado\" o \"No Saludable\" y si es bueno o malo para consumir.\n\nGenera un mensaje corto en texto plano, con esta estructura, usa emojis y colores para resaltar.\nTítulo con emoji\nDatos\n- Azúcar: {{ $('Extraer datos para la clasificación').item.json[\"azúcar_100g\"] }}\n- Sal: {{ $('Extraer datos para la clasificación').item.json.sal_100g }}\n- Grasa: {{ $('Extraer datos para la clasificación').item.json.grasa_100g }}\n- Nutriscore: {{ $('Extraer datos para la clasificación').item.json.nutriscore }}\n\nLuego genera un mensaje basado en el veredicto descrito en {{ $json.veredicto }}. \n\nSi ese resultado es \"Moderado\" y \"Saludable\" usa un tono alentador y si es \"No saludable\" usa un tono cauteloso y con delicadeza, siempre en positivo.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        4528,
+        0
+      ],
+      "id": "99f80f24-b7f2-4d5b-9249-f52911c1026f",
+      "name": "Crear mensaje con IA"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\nconst clasificacion = [$json.Azúcar, $json.Sal, $json.Grasa];\nconst altos = clasificacion.filter(n => (n ?? '').toString().trim().toLowerCase() === 'alto').length;\n\nlet resultado;\nif (altos >= 2) resultado = 'No Saludable';\nelse if (altos === 1) resultado = 'Moderado';\nelse resultado = 'Saludable'\n\nconst preocupacion = altos\n\nconst severidad = { Saludable: 0, Moderado: 1, 'No Saludable': 2}\nconst mapaNutriscore = {\n  a: 'saludable',\n  b: 'saludable',\n  c: 'moderado',\n  d: 'no saludable',\n  e: 'no saludable'\n};\n\nconst nutriscoreRaw = (item.Nutriscore ?? '').toString().trim().toLowerCase();\nconst esValido = Object.keys(mapaNutriscore).includes(nutriscoreRaw);\n\nlet veredicto\n{\n  const categoriaNutriscore = mapaNutriscore[nutriscoreRaw];\n  veredicto = severidad[categoriaNutriscore] >= severidad[item.resultado]\n    ? categoriaNutriscore\n    : resultado;\n}\n\nreturn [{\n  json: {\n    ...item,\n    resultado,\n    preocupacion,\n    veredicto\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4288,
+        0
+      ],
+      "id": "5e3ec50a-1024-4dab-9c6b-0a2acf701643",
+      "name": "Construcción de Veredicto"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Verificar que el campo barcode exista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar que el campo barcode exista": {
+      "main": [
+        [
+          {
+            "node": "Verificar que el campo barcode sea numérico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje de error 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar que el campo barcode sea numérico": {
+      "main": [
+        [
+          {
+            "node": "llamada HTTP a Open Food Facts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje de error 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "llamada HTTP a Open Food Facts": {
+      "main": [
+        [
+          {
+            "node": "Verificar si faltan datos de nutrientes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje de error 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje de error 3": {
+      "main": [
+        [
+          {
+            "node": "Respuesta 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje de error 2": {
+      "main": [
+        [
+          {
+            "node": "Respuesta 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje de error 1": {
+      "main": [
+        [
+          {
+            "node": "Respuesta 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar si faltan datos de nutrientes": {
+      "main": [
+        [
+          {
+            "node": "Extraer datos para la clasificación",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje de error 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje de error 4": {
+      "main": [
+        [
+          {
+            "node": "Respuesta 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer datos para la clasificación": {
+      "main": [
+        [
+          {
+            "node": "Azúcar es mayor a 22.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azúcar es mayor a 22.5": {
+      "main": [
+        [
+          {
+            "node": "Clasificación Azúcar: Alto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Azúcar entre 5 y 22.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azúcar entre 5 y 22.5": {
+      "main": [
+        [
+          {
+            "node": "Clasificación Azúcar: Medio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clasificación Azucar: Bajo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sal es mayor a 1.5": {
+      "main": [
+        [
+          {
+            "node": "Clasificación Sal: Alto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clasificación Sal: Bajo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Azúcar: Alto": {
+      "main": [
+        [
+          {
+            "node": "Sal es mayor a 1.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Azúcar: Medio": {
+      "main": [
+        [
+          {
+            "node": "Sal es mayor a 1.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Azucar: Bajo": {
+      "main": [
+        [
+          {
+            "node": "Sal es mayor a 1.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Sal: Alto": {
+      "main": [
+        [
+          {
+            "node": "Grasa es mayor a 17.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Sal: Bajo": {
+      "main": [
+        [
+          {
+            "node": "Grasa es mayor a 17.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Grasa: Alto": {
+      "main": [
+        [
+          {
+            "node": "Combinar resultados de las clasificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Grasa: Bajo": {
+      "main": [
+        [
+          {
+            "node": "Combinar resultados de las clasificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grasa es mayor a 17.5": {
+      "main": [
+        [
+          {
+            "node": "Clasificación Grasa: Alto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clasificación Grasa: Bajo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combinar resultados de las clasificación": {
+      "main": [
+        [
+          {
+            "node": "Construcción de Veredicto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Crear mensaje con IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear mensaje con IA": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construcción de Veredicto": {
+      "main": [
+        [
+          {
+            "node": "Crear mensaje con IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a6697f75-fc48-44d6-9f78-5f31e266ad25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7a592154918ede049f600efca1653b135ef0cb75e1efeead99a408abbe779fc9"
+  },
+  "nodeGroups": [],
+  "id": "lcj3pJ0kfbpUd2kO",
+  "tags": []
+}
